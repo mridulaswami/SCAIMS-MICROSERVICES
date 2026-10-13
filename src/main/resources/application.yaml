@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: SCAIMS-ASSET-SERVICE
+  profiles:
+    active: local
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 3MB
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  opt:
+    exprired-at: 5
+
+server:
+  port: 8005
+  address: 0.0.0.0
+  servlet:
+    context-path: /scaims-asset-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+app:
+  jwt:
+    secret: your-256-bit-secret-key-change-in-production-must-be-at-least-32-chars
+    access-token-expiration-ms: 300000
+    refresh-token-expiration-ms: 3600000

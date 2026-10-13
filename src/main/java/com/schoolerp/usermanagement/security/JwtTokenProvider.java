@@ -1,0 +1,340 @@
+package com.schoolerp.usermanagement.security;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+@Component
+@Slf4j
+public class JwtTokenProvider {
+
+    @Value("${app.jwt.secret:change-me-secret-key}")
+    private String jwtSecret;
+
+    /**
+     * Access Token Expiration
+     * Default: 15 minutes
+     */
+    @Value("${app.jwt.expiration-ms:900000}")
+    private long accessTokenExpirationMs;
+
+    /**
+     * Refresh Token Expiration
+     * Default: 7 days
+     */
+    @Value("${app.jwt.refresh-token-expiration-ms:604800000}")
+    private long refreshTokenExpirationMs;
+
+    private Key signingKey;
+
+    @PostConstruct
+    public void init() {
+
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+
+        if (keyBytes.length < 32) {
+
+            log.warn("JWT secret is shorter than 32 bytes. " + "Provide a 32+ byte secret in production.");
+
+            keyBytes = Arrays.copyOf(keyBytes, 32);
+        }
+
+        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
+
+        log.info("JWT signing key initialized successfully");
+    }
+
+//    /**
+//     * Generate Access Token
+//     */
+//    public String generateAccessToken(String username, UUID id, List<String> roles) {
+//
+//        Date now = new Date();
+//
+//        Date expiryDate = new Date(now.getTime() + accessTokenExpirationMs);
+//
+//        return Jwts.builder().setSubject(username).claim("tokenType", "ACCESS").claim("userId", id.toString()).claim("role", roles).setIssuedAt(now).setExpiration(expiryDate).signWith(signingKey, SignatureAlgorithm.HS256).compact();
+//    }
+
+//    /**
+//     * Generate Refresh Token
+//     */
+//    public String generateRefreshToken(String username) {
+//
+//        Date now = new Date();
+//
+//        Date expiryDate = new Date(now.getTime() + refreshTokenExpirationMs);
+//
+//        return Jwts.builder().setSubject(username).claim("tokenType", "REFRESH").setIssuedAt(now).setExpiration(expiryDate).signWith(signingKey, SignatureAlgorithm.HS256).compact();
+//    }
+
+    /**
+     * Extract username
+     */
+    public String getUsernameFromJWT(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        return claims.getSubject();
+    }
+
+    /**
+     * Extract email
+     */
+    public String getEmailFromJWT(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        return claims.get("email", String.class);
+    }
+
+    /**
+     * Extract phone number
+     */
+    public String getPhoneNumberFromJWT(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        return claims.get("phoneNumber", String.class);
+    }
+
+    /**
+     * Extract UserId
+     */
+    public String getUserIdFromJWT(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        Object userId = claims.get("userId");
+
+        if (userId == null) {
+            return null;
+        }
+
+        return userId.toString();
+    }
+
+    /**
+     * Extract Roles from JWT
+     * <p>
+     * Supports:
+     * <p>
+     * New token:
+     * "role": ["ADMIN", "FIELD_ENGINEER"]
+     * <p>
+     * Old token:
+     * "role": "ADMIN"
+     */
+    public List<String> getRolesFromJWT(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        Object roleClaim = claims.get("role");
+
+        if (roleClaim == null) {
+            return Collections.emptyList();
+        }
+
+        /*
+         * Old JWT format:
+         *
+         * "role": "ADMIN"
+         */
+        if (roleClaim instanceof String role) {
+
+            if (role.isBlank()) {
+                return Collections.emptyList();
+            }
+
+            return Collections.singletonList(role);
+        }
+
+        /*
+         * New JWT format:
+         *
+         * "role": ["ADMIN", "FIELD_ENGINEER"]
+         */
+        if (roleClaim instanceof Collection<?> roles) {
+
+            return roles.stream().filter(Objects::nonNull).map(Object::toString).map(String::trim).filter(role -> !role.isBlank()).toList();
+        }
+
+        log.warn("Unexpected JWT role claim type: {}", roleClaim.getClass().getName());
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Backward-compatible method.
+     * <p>
+     * If existing code is expecting a single role,
+     * this returns the first role from the JWT.
+     * <p>
+     * For new code, prefer getRolesFromJWT().
+     */
+    public String getRoleFromJWT(String token) {
+
+        List<String> roles = getRolesFromJWT(token);
+
+        if (roles.isEmpty()) {
+            return null;
+        }
+
+        return roles.get(0);
+    }
+
+    /**
+     * Validate JWT
+     */
+    public boolean validateToken(String authToken) {
+
+        try {
+
+            String token = removeBearerPrefix(authToken);
+
+            Jwts.parser().setSigningKey(signingKey).build().parseClaimsJws(token);
+
+            return true;
+
+        } catch (JwtException | IllegalArgumentException ex) {
+
+            log.debug("Invalid JWT token | reason={}", ex.getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Validate that token is an Access Token
+     */
+    public boolean validateAccessToken(String token) {
+
+        try {
+
+            token = removeBearerPrefix(token);
+
+            Claims claims = getClaims(token);
+
+            String tokenType = claims.get("tokenType", String.class);
+
+            return "ACCESS".equals(tokenType);
+
+        } catch (JwtException | IllegalArgumentException ex) {
+
+            log.debug("Invalid access token | reason={}", ex.getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Validate that token is a Refresh Token
+     */
+    public boolean validateRefreshToken(String token) {
+
+        try {
+
+            token = removeBearerPrefix(token);
+
+            Claims claims = getClaims(token);
+
+            String tokenType = claims.get("tokenType", String.class);
+
+            return "REFRESH".equals(tokenType);
+
+        } catch (JwtException | IllegalArgumentException ex) {
+
+            log.debug("Invalid refresh token | reason={}", ex.getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Get token type
+     */
+    public String getTokenType(String token) {
+
+        token = removeBearerPrefix(token);
+
+        Claims claims = getClaims(token);
+
+        return claims.get("tokenType", String.class);
+    }
+
+    /**
+     * Get all claims
+     */
+    public Claims getClaims(String jwt) {
+
+        jwt = removeBearerPrefix(jwt);
+
+        return Jwts.parser().setSigningKey(signingKey).build().parseClaimsJws(jwt).getBody();
+    }
+
+    /**
+     * Remove Bearer prefix
+     */
+    private String removeBearerPrefix(String token) {
+
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+
+        return token;
+    }
+
+    /**
+     * Extract Access Token from Authorization header
+     */
+    public String extractAccestoken(HttpServletRequest request) {
+
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader == null || authorizationHeader.isBlank()) {
+
+            throw new RuntimeException("Authorization header not found");
+        }
+
+        if (!authorizationHeader.startsWith("Bearer ")) {
+
+            throw new RuntimeException("Invalid Authorization header");
+        }
+
+        String accessToken = authorizationHeader.substring(7).trim();
+
+        if (accessToken.isBlank()) {
+
+            throw new RuntimeException("Access token not found");
+        }
+
+        return accessToken;
+    }
+}

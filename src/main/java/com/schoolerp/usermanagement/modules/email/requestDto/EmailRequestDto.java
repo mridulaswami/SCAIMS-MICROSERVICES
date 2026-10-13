@@ -1,7 +1,5 @@
 package com.schoolerp.usermanagement.modules.email.requestDto;
 
-import com.schoolerp.usermanagement.modules.email.constant.EmailSubjectConstant;
-import com.schoolerp.usermanagement.modules.email.constant.EmailTemplateConstant;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

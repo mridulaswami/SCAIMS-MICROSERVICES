@@ -3,7 +3,6 @@ package com.schoolerp.usermanagement.modules.email.service.impl;
 import com.schoolerp.usermanagement.modules.email.requestDto.EmailRequestDto;
 import com.schoolerp.usermanagement.modules.email.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

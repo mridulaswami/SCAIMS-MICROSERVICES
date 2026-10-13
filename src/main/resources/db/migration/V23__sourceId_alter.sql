@@ -1,1 +1,0 @@
-ALTER TABLE assets ALTER COLUMN source_id TYPE BIGINT;

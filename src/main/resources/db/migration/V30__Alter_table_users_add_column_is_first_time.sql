@@ -1,2 +1,0 @@
-ALTER TABLE users
-    ADD COLUMN is_first_time BOOLEAN NOT NULL DEFAULT TRUE;

@@ -1,6 +1,8 @@
 spring:
   application:
-    name: USER-MANAGEMENT-SERVICE
+    name: SCAIMS-USER-SERVICE
+  profiles:
+    active: local
 
   flyway:
     enabled: true
@@ -31,10 +33,15 @@ spring:
     exprired-at: 5
 
 server:
-  port: 8003
+  port: 8008
   address: 0.0.0.0
   servlet:
-    context-path: /user-management-service
+    context-path: /scaims-user-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 
 
 app:

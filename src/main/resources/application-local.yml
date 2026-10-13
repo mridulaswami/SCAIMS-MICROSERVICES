@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/scaims
-    username: mridula
-    password: Mridula@123
+    url: jdbc:postgresql://localhost:5432/user-scaims
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
 
   mail:
-    username: abhinav.singh@jellyfishtechnologies.com
-    password: evjkcwytstpyzezo
+    username: mridulaswamiofficial@gmail.com
+    password: vundhrlldumtpjzp
 

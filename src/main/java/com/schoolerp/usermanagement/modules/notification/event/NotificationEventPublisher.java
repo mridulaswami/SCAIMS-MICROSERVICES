@@ -1,5 +1,6 @@
 package com.schoolerp.usermanagement.modules.notification.event;
 
+import com.schoolerp.usermanagement.modules.auth.repository.UserRoleRepository;
 import com.schoolerp.usermanagement.modules.notification.dto.NotificationRequestDto;
 import com.schoolerp.usermanagement.modules.notification.dto.NotificationResponseDto;
 import com.schoolerp.usermanagement.modules.notification.entity.NotificationEntity;
@@ -11,17 +12,12 @@ import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import com.schoolerp.usermanagement.modules.user.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.schoolerp.usermanagement.modules.auth.repository.UserRoleRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor

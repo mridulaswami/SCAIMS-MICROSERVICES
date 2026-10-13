@@ -1,1 +1,0 @@
-alter table work_order add column rejection_reason varchar(255);

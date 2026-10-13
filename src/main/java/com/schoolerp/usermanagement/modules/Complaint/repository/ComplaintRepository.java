@@ -1,7 +1,6 @@
 package com.schoolerp.usermanagement.modules.Complaint.repository;
 
 import com.schoolerp.usermanagement.modules.Complaint.entity.ComplaintEntity;
-import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +17,7 @@ public interface ComplaintRepository extends JpaRepository<ComplaintEntity, UUID
 
 //    List<ComplaintEntity> findByCitizenId(Optional<UserEntity> citizenId);
 
-    Page<ComplaintEntity> findByCitizenId(UserEntity citizen, Pageable pageable);
+ //   Page<ComplaintEntity> findByCitizenId(UserEntity citizen, Pageable pageable);
 
     long countByStatusNot(ComplaintEntity.Status status);
 

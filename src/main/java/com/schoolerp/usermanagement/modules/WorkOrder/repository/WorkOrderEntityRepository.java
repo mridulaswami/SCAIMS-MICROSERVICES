@@ -1,7 +1,6 @@
 package com.schoolerp.usermanagement.modules.WorkOrder.repository;
 
 import com.schoolerp.usermanagement.modules.WorkOrder.entity.WorkOrderEntity;
-import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +20,5 @@ public interface WorkOrderEntityRepository extends JpaRepository<WorkOrderEntity
 
     long countByStatusNot(WorkOrderEntity.Status status);
 
-    List<WorkOrderEntity> findByInspectorId(UserEntity user);
+ //   List<WorkOrderEntity> findByInspectorId(UserEntity user);
 }

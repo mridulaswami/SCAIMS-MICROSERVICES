@@ -14,9 +14,9 @@ import java.util.UUID;
 
 public interface WorkOrderService {
 
-    CreateWorkOrderResponseDto createWorkOrder(CreateWorkOrderRequestDto request , UUID userId);
-
-    StatusChangeResponseDto changeStatus(StatusChangeRequestDto requestDto);
-
-    List<GetAllWorkOrderGroupByStatusResponseDto> getAllWorkOrderGroupByStatus(String token);
+//    CreateWorkOrderResponseDto createWorkOrder(CreateWorkOrderRequestDto request , UUID userId);
+//
+//    StatusChangeResponseDto changeStatus(StatusChangeRequestDto requestDto);
+//
+//    List<GetAllWorkOrderGroupByStatusResponseDto> getAllWorkOrderGroupByStatus(String token);
 }

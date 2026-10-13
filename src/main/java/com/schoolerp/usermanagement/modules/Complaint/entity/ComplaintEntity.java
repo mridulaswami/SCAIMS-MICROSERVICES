@@ -1,8 +1,6 @@
 package com.schoolerp.usermanagement.modules.Complaint.entity;
 
 import com.schoolerp.usermanagement.modules.WorkOrder.entity.WorkOrderEntity;
-import com.schoolerp.usermanagement.modules.asset.entity.AssetEntity;
-import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,16 +26,14 @@ public class ComplaintEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @OneToOne
-    @JoinColumn(name = "citizen_id")
-    private UserEntity citizenId;
+
+    private UUID citizenId;
 
     @Column(name = "title")
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "asset_id")
-    private AssetEntity asset;
+
+    private UUID assetId;
 
     @Column(name = "description")
     private String description;
@@ -49,12 +45,12 @@ public class ComplaintEntity {
     @Column(name = "status")
     private Status status = Status.SUBMITTED;
 
-    @OneToOne
-    @JoinColumn(name = "linked_work_order_id")
-    private WorkOrderEntity linkedWorkOrderId;
+//    @OneToOne
+//    @JoinColumn(name = "linked_work_order_id")
+//    private WorkOrderEntity linkedWorkOrderId;
 
-    @OneToOne(mappedBy = "complaintId", fetch = FetchType.EAGER)
-    private WorkOrderEntity workOrder;
+    @OneToMany(mappedBy = "complaintId", fetch = FetchType.EAGER)
+    private List<WorkOrderEntity> workOrder;
 
     @OneToMany(mappedBy = "complaint", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComplaintPhotosEntity> complaintPhotos;

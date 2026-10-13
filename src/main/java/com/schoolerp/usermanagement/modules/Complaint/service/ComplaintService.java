@@ -14,7 +14,7 @@ public interface ComplaintService {
 
     ComplaintResponseDto createComplaint(CreateComplaintRequestDto request, UUID userId);
 
-    PaginationResponse<List<GetAllComplaintsResponseDto>> getAllComplaints(String token, int page, int size, String search);
+ //   PaginationResponse<List<GetAllComplaintsResponseDto>> getAllComplaints(String token, int page, int size, String search);
 
 
 }

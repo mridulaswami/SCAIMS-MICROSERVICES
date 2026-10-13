@@ -2,7 +2,6 @@ package com.schoolerp.usermanagement.modules.WorkOrder.responseDto;
 
 import com.schoolerp.usermanagement.modules.Complaint.entity.ComplaintEntity;
 import com.schoolerp.usermanagement.modules.WorkOrder.entity.WorkOrderEntity;
-import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

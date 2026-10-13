@@ -2,9 +2,9 @@ package com.schoolerp.usermanagement.modules.WorkOrder.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.schoolerp.usermanagement.modules.Complaint.entity.ComplaintEntity;
-import com.schoolerp.usermanagement.modules.asset.entity.AssetEntity;
-import com.schoolerp.usermanagement.modules.inspection.entity.InspectionEntity;
-import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
+//import com.schoolerp.usermanagement.modules.asset.entity.AssetEntity;
+//import com.schoolerp.usermanagement.modules.inspection.entity.InspectionEntity;
+//import com.schoolerp.usermanagement.modules.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,13 +34,11 @@ public class WorkOrderEntity {
     @JoinColumn(name = "complaint_id")
     private ComplaintEntity complaintId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity inspectorId;
+    @Column(name="user_id")
+    private UUID inspectorId;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    private UserEntity createdBy;
+
+    private UUID createdBy;
 
     @Column(name = "priority")
     @Enumerated(EnumType.STRING)

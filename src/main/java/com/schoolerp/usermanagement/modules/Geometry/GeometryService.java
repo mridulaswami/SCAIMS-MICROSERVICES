@@ -1,11 +1,8 @@
 package com.schoolerp.usermanagement.modules.Geometry;
 
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.springframework.stereotype.Component;
 import org.locationtech.jts.geom.*;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;

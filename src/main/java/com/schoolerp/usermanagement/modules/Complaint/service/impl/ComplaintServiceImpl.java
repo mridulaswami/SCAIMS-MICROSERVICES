@@ -3,6 +3,8 @@ package com.schoolerp.usermanagement.modules.Complaint.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.schoolerp.usermanagement.common.response.ApiResponse;
 import com.schoolerp.usermanagement.common.response.PaginationResponse;
+import com.schoolerp.usermanagement.config.AssetClient;
+import com.schoolerp.usermanagement.config.UserClient;
 import com.schoolerp.usermanagement.modules.Complaint.entity.ComplaintEntity;
 import com.schoolerp.usermanagement.modules.Complaint.entity.ComplaintPhotosEntity;
 import com.schoolerp.usermanagement.modules.Complaint.repository.ComplaintPhotosRepository;
@@ -23,6 +25,7 @@ import com.schoolerp.usermanagement.modules.email.constant.EmailTemplateConstant
 import com.schoolerp.usermanagement.modules.email.requestDto.EmailRequestDto;
 import com.schoolerp.usermanagement.modules.email.service.EmailService;
 import com.schoolerp.usermanagement.security.JwtTokenProvider;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +65,8 @@ public class ComplaintServiceImpl implements ComplaintService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
     private final EmailService emailService;
+    private final UserClient userClient;
+    private final AssetClient assetClient;
  //   private final NotificationEventPublisher notificationEventPublisher;
     private static final Random random = new Random();
 
@@ -76,58 +81,46 @@ public class ComplaintServiceImpl implements ComplaintService {
         // Step 1: Find citizen
         log.debug("Fetching citizen | citizenId={}", citizenId);
 
-        String userUrl = "http://localhost:8008/scaims-user-service/api/v1/users/" + citizenId;
-
-        String raw = restTemplate.getForObject(userUrl, String.class);
-        log.info("user-service raw response: {}", raw);
-
-        ResponseEntity<ApiResponse<UserResponseDto>> response = restTemplate.exchange(
-                userUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponse<UserResponseDto>>() {});
-
-        UserResponseDto citizen = response.getBody() != null ? response.getBody().getData() : null;
-        if (citizen == null) {
-            throw new IllegalStateException("User not found in user-service: " + citizenId);
-        }
-
-    //    UserResponseDto citizen = restTemplate.getForObject(userUrl, UserResponseDto.class);
-
-//        UserEntity citizen = userEntityRepository.findById(citizenId).orElseThrow(() -> {
-//            log.warn("Citizen not found | citizenId={}", citizenId);
+//        String userUrl = "http://localhost:8008/scaims-user-service/api/v1/users/" + citizenId;
 //
-//            return new RuntimeException("Citizen not found with id: " + citizenId);
-//        });
-
-//        if(!citizen.isStatus()){
+//        String raw = restTemplate.getForObject(userUrl, String.class);
+//        log.info("user-service raw response: {}", raw);
 //
-//            throw new RuntimeException("User is Inactive");
+//        ResponseEntity<ApiResponse<UserResponseDto>> response = restTemplate.exchange(
+//                userUrl,
+//                HttpMethod.GET,
+//                null,
+//                new ParameterizedTypeReference<ApiResponse<UserResponseDto>>() {});
+//
+//        UserResponseDto citizen = response.getBody() != null ? response.getBody().getData() : null;
+//        if (citizen == null) {
+//            throw new IllegalStateException("User not found in user-service: " + citizenId);
 //        }
+
+
+            UserResponseDto citizen = userClient.getUserById(citizenId).getData();
+
+
 
         // Step 2: Find asset
         log.debug("Fetching asset | assetId={}", request.getAsset());
-
-        String assetUrl = "http://localhost:8006/scaims-asset-service/api/v1/assets/id/" + request.getAsset();
-
-        ResponseEntity<ApiResponse<AssetResponseDto>> assetresponse = restTemplate.exchange(
-                userUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponse<AssetResponseDto>>() {});
-
-        AssetResponseDto asset = response.getBody() != null ? assetresponse.getBody().getData() : null;
-        if (asset == null) {
-            throw new IllegalStateException("Asset not found in user-service: " + citizenId);
-        }
-
-    //    AssetResponseDto asset = restTemplate.getForObject(assetUrl, AssetResponseDto.class);
-
-//        AssetEntity asset = assetRepository.findById(request.getAsset()).orElseThrow(() -> {
-//            log.warn("Asset not found | assetId={}", request.getAsset());
 //
-//            return new RuntimeException("Asset not found with id: " + request.getAsset());
-//        });
+//        String assetUrl = "http://localhost:8006/scaims-asset-service/api/v1/assets/id/" + request.getAsset();
+//
+//        ResponseEntity<ApiResponse<AssetResponseDto>> assetresponse = restTemplate.exchange(
+//                userUrl,
+//                HttpMethod.GET,
+//                null,
+//                new ParameterizedTypeReference<ApiResponse<AssetResponseDto>>() {});
+//
+//        AssetResponseDto asset = response.getBody() != null ? assetresponse.getBody().getData() : null;
+//        if (asset == null) {
+//            throw new IllegalStateException("Asset not found in user-service: " + citizenId);
+//        }
+
+            AssetResponseDto asset = assetClient.getAssetById(request.getAsset()).getData();
+
+
 
         // Step 3: Convert location
         log.debug("Converting complaint location | citizenId={} | assetId={}", citizenId, request.getAsset());
